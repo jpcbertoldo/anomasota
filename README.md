@@ -1,2 +1,1 @@
-# anomasota
-ANOMAly detection State-Of-The-Art
+# ANOMAly detection in State-Of-The-Art (anomasota)
