@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple, Any
 import time
 import datetime
 import warnings
+import hashlib
 
 import click
 import jmespath
@@ -50,6 +51,10 @@ def _parse_manual(jsonfpath: Path) -> Dict[str, Any]:
     return json5.loads(jsonfpath.read_text())
 
 
+def _get_checksum(fpath: Path) -> str:
+    return hashlib.md5(fpath.read_bytes()).hexdigest()
+
+
 # todo move this to a config file
 _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
     "000-manual": _parse_manual,
@@ -72,11 +77,6 @@ def main(datadir):
         print(f"\t{p.name}")
     
     merged_data = {}
-    # only add to merged_data in the end
-    metadata = {
-        "datetime": fmt_timestamp(NOW),
-        "source-files": [p.name for p in srcjsons],
-    }
     
     def count_objects(data: Dict[str, Any]) -> Dict[str, int]:
         return {k: len(v) for k, v in data.items() if isinstance(v, list) or isinstance(v, dict)}
@@ -133,9 +133,20 @@ def main(datadir):
     print(f"merged data count: {count_objects(merged_data)}")
     
     print("writing data.json")
-    merged_data["metadata"] = metadata
+    merged_data["metadata"] = metadata = {
+        "datetime": fmt_timestamp(NOW),
+        "source-files": [
+            {
+                "filename": p.name,
+                "checksum": _get_checksum(p),
+            } 
+            for p in srcjsons
+        ],
+    }
+
     datajson.write_text(json5.dumps(merged_data, indent=4, sort_keys=False))
-    # TODO add checksums
+    (datadir / "data.checksum").write_text(_get_checksum(datajson))
+    
     # TODO ADD BACKUP
     # TODO ADD DRYRUN
     
