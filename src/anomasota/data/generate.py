@@ -26,25 +26,29 @@ def fmt_timestamp(timestamp: float) -> str:
     return datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d-%H-%M-%S")
 
 
-def _get_datadir_subpaths(datadir: Path) -> Tuple[Path, Path, Path]:
+def _get_datadir_subpaths(datadir: Path) -> Tuple[Path, Path, Path, Path, Path]:
     return (
-        # data.json
+        # data.json and data.checksum
         datadir / "data.json",
+        datadir / "data.checksum",
         # src/
         (srcdir := datadir / "src"),
-        # src/000-manual.json
         srcdir / "000-manual.json",
+        # bkp/
+        srcdir / "bkp",
     )
 
 
 def _validate_datadir(datadir: Path) -> None:
     assert datadir.exists(), f"Data directory does not exist, {datadir=}"
     assert datadir.is_dir(), f"Data directory is not a directory, {datadir=}"
-    datajson, srcdir, manualjson = _get_datadir_subpaths(datadir)
+    datajson, datachecksum, srcdir, manualjson, bkpdir = _get_datadir_subpaths(datadir)
     assert srcdir.exists(), f"Source directory does not exist, {srcdir=}"
     assert srcdir.is_dir(), f"Source directory is not a directory, {srcdir=}"
     assert manualjson.exists(), f"Manual JSON file does not exist, {manualjson=}"
     assert manualjson.is_file(), f"Manual JSON file is not a file, {manualjson=}"
+    bkpdir.mkdir(exist_ok=True)
+    assert bkpdir.is_dir(), f"Backup directory is not a directory, {bkpdir=}"
     
     
 def _parse_manual(jsonfpath: Path) -> Dict[str, Any]:
@@ -53,6 +57,25 @@ def _parse_manual(jsonfpath: Path) -> Dict[str, Any]:
 
 def _get_checksum(fpath: Path) -> str:
     return hashlib.md5(fpath.read_bytes()).hexdigest()
+
+
+def _bkp(datadir) -> None:
+    
+    datajson, datachecksum, _, _, bkpdir = _get_datadir_subpaths(datadir)
+    
+    if not datajson.exists():
+        warnings.warn("data.json does not exist, skipping backup")
+        return 
+    
+    bkp_subdirs = [d for d in bkpdir.iterdir() if d.is_dir() and d.name.startswith("bkp-")] 
+    bkp_count = len(bkp_subdirs)
+    
+    newbkpdir = bkpdir / f"bkp-{bkp_count:05d}-{fmt_timestamp(NOW)}"
+    newbkpdir.mkdir()
+    
+    files_to_copy = [datajson, datachecksum]
+    for f in files_to_copy:
+        (newbkpdir / f.name).write_bytes(f.read_bytes())
 
 
 # todo move this to a config file
@@ -65,10 +88,11 @@ _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
 @click.command()
 @click.option('--datadir', '-o', default=_DEFAULT_DATA_DIR, type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, writable=True, allow_dash=False, path_type=Path))
 @click.option("--dryrun", is_flag=True)
-def main(datadir: Path, dryrun: bool) -> None:
+@click.option("--bkp", is_flag=True)
+def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
     
     _validate_datadir(datadir)
-    datajson, srcdir, manualjson = _get_datadir_subpaths(datadir)
+    datajson, datachecksum, srcdir, manualjson, _ = _get_datadir_subpaths(datadir)
     
     # find source files in srcdir
     srcjsons = sorted(p for p in srcdir.iterdir() if p.is_file() and p.suffix == ".json")
@@ -149,10 +173,14 @@ def main(datadir: Path, dryrun: bool) -> None:
         warnings.warn("dryrun, not writing data.json")
     
     else:
+        
+        if bkp:
+            print("backing up data.json")
+            _bkp(datadir)        
+                
         datajson.write_text(json5.dumps(merged_data, indent=4, sort_keys=False))
         (datadir / "data.checksum").write_text(_get_checksum(datajson))
     
-    # TODO ADD BACKUP
 
 if __name__ == "__main__":
     main()
