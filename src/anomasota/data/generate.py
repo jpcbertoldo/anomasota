@@ -64,7 +64,8 @@ _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
 
 @click.command()
 @click.option('--datadir', '-o', default=_DEFAULT_DATA_DIR, type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, writable=True, allow_dash=False, path_type=Path))
-def main(datadir):
+@click.option("--dryrun", is_flag=True)
+def main(datadir: Path, dryrun: bool) -> None:
     
     _validate_datadir(datadir)
     datajson, srcdir, manualjson = _get_datadir_subpaths(datadir)
@@ -144,12 +145,14 @@ def main(datadir):
         ],
     }
 
-    datajson.write_text(json5.dumps(merged_data, indent=4, sort_keys=False))
-    (datadir / "data.checksum").write_text(_get_checksum(datajson))
+    if dryrun:
+        warnings.warn("dryrun, not writing data.json")
+    
+    else:
+        datajson.write_text(json5.dumps(merged_data, indent=4, sort_keys=False))
+        (datadir / "data.checksum").write_text(_get_checksum(datajson))
     
     # TODO ADD BACKUP
-    # TODO ADD DRYRUN
-    
 
 if __name__ == "__main__":
     main()
