@@ -1,0 +1,61 @@
+// to be parsed with `parse_models_single_paper`
+{
+    "papers": {
+        "PAPERID": {
+            "id": "PAPERID",
+            "name": "",
+            "author": "",
+            "year": ""
+        }
+    },
+    "models-common-tags": {
+        "pretraining": "?",
+        "input-resolution": "?",
+    },
+    "models": {
+        "MODELID": {
+            "id": "MODELID",
+            "name": "",
+            "version": "",
+            "tags": { 
+                "backbone": "?",
+                "embedding-size": "?",
+            },
+        },
+    },
+    "performances-common-tags": {
+        "num-seeds": "?",
+        "task": "?",
+    },
+    "performances": [
+        // --------------------------------------------------------------------
+        {
+            "metric": "",                 
+            "model": "",         
+            "tags": {},
+            "extra": {},
+            "datasets": {
+                "mvtec-ad": 0.976,
+                "mvtec-ad-objects": 0.973,
+                "mvtec-ad-textures": 0.929,
+                // categories
+                "mvtec-ad/carpet": 0.989,
+                "mvtec-ad/grid": 0.949,
+                "mvtec-ad/leather": 0.991,
+                "mvtec-ad/tile": 0.912,
+                "mvtec-ad/wood": 0.936,
+                "mvtec-ad/bottle": 0.981,
+                "mvtec-ad/cable": 0.958,
+                "mvtec-ad/capsule": 0.983,
+                "mvtec-ad/hazelnut": 0.977,
+                "mvtec-ad/metalnut": 0.967,
+                "mvtec-ad/pill": 0.947,
+                "mvtec-ad/screw": 0.974,
+                "mvtec-ad/toothbrush": 0.987,
+                "mvtec-ad/transistor": 0.972,
+                "mvtec-ad/zipper": 0.982,            
+            }
+        },
+    ]
+}
+
