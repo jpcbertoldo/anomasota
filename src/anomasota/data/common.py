@@ -339,3 +339,20 @@ def validate_data(data) -> None:
     mutually_exclusive = paperids ^ referenced_paperids
     assert not mutually_exclusive, f"There are mutually exclusive PAPER ids between data.{DK_PAPERS} and (data.{DK_PERFORMANCES} U data.{DK_DATASETS} U data.{DK_MODELS}), {mutually_exclusive=}"
     
+    # =================
+    # warnings
+    # =================
+    
+    perfobj_debug_projection_str = '[*].{dataset: dataset, metric: metric, model: model, "src-file": metadata."src-file", tagkeys: keys(tags)}'
+    perfobjs_without_task_tag_querystr = f' {perfobj_debug_projection_str} | [?!contains(tagkeys, `task`)]'
+    
+    try:
+        perfobjs_without_task_tag = qperformances(perfobjs_without_task_tag_querystr)
+        
+    except jmespath.exceptions.JMESPathError as ex:
+        warnings.warn(f"JMESPath query failed: {perfobjs_without_task_tag_querystr=}. {ex}")
+
+    if perfobjs_without_task_tag:
+        tabchar = '\n\t'
+        fmt_perfobj = lambda obj: f"dataset={obj['dataset']}, metric={obj['metric']}, model={obj['model']}, src-file={obj['src-file']}"
+        warnings.warn(f"There are performance objects without a 'task' tag: \n{tabchar.join(map(fmt_perfobj, perfobjs_without_task_tag))}")
