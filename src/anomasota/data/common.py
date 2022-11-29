@@ -339,9 +339,16 @@ def validate_data(data) -> None:
     mutually_exclusive = paperids ^ referenced_paperids
     assert not mutually_exclusive, f"There are mutually exclusive PAPER ids between data.{DK_PAPERS} and (data.{DK_PERFORMANCES} U data.{DK_DATASETS} U data.{DK_MODELS}), {mutually_exclusive=}"
     
-    # =================
-    # warnings
-    # =================
+    # ================================================================================================================
+    #                                                     warnings
+    # ================================================================================================================
+    
+    def fmt_list_objs(objs, fmt_one_obj):
+        return '\n\t'.join(sorted(map(fmt_one_obj, objs)))
+        
+    # ------------------------------------------------
+    # 1) missing tag key "task" in performances
+    # ------------------------------------------------
     
     perfobj_debug_projection_str = '[*].{dataset: dataset, metric: metric, model: model, "src-file": metadata."src-file", tagkeys: keys(tags)}'
     perfobjs_without_task_tag_querystr = f' {perfobj_debug_projection_str} | [?!contains(tagkeys, `task`)]'
@@ -353,6 +360,49 @@ def validate_data(data) -> None:
         warnings.warn(f"JMESPath query failed: {perfobjs_without_task_tag_querystr=}. {ex}")
 
     if perfobjs_without_task_tag:
-        tabchar = '\n\t'
-        fmt_perfobj = lambda obj: f"dataset={obj['dataset']}, metric={obj['metric']}, model={obj['model']}, src-file={obj['src-file']}"
-        warnings.warn(f"There are performance objects without a 'task' tag: \n{tabchar.join(map(fmt_perfobj, perfobjs_without_task_tag))}")
+        list_objs_str = fmt_list_objs(
+            sorted(perfobjs_without_task_tag), 
+            lambda obj: f"dataset={obj['dataset']}, metric={obj['metric']}, model={obj['model']}, src-file={obj['src-file']}"
+        )
+        warnings.warn(f"There are performance objects without a 'task' tag: \n{list_objs_str}")
+
+    # ------------------------------------------------
+    # 2) tag value "?" missing
+    # ------------------------------------------------
+    
+    perfobj_debug_projection_str = '[*].{dataset: dataset, metric: metric, model: model, "src-file": metadata."src-file", "tagvalues": values(tags)}'
+    perfobjs_with_tags_missing_val_querystr = f' {perfobj_debug_projection_str} | [?contains(tagvalues, `?`)]'
+    
+    try:
+        perfobjs_with_tags_missing_val = qperformances(perfobjs_with_tags_missing_val_querystr)
+    
+    except jmespath.exceptions.JMESPathError as ex:
+        warnings.warn(f"JMESPath query failed: {perfobjs_with_tags_missing_val_querystr=}. {ex}")
+        
+    if perfobjs_with_tags_missing_val:
+        list_objs_str = fmt_list_objs(
+            perfobjs_without_task_tag, 
+            lambda obj: f"dataset={obj['dataset']}, metric={obj['metric']}, model={obj['model']}, src-file={obj['src-file']}"
+        )
+        warnings.warn(f"There are performance objects with a tag value of '?': \n{list_objs_str}")
+        
+    model_debug_projection_str = '*.{model: id, "src-file": metadata."src-file", "tagvalues": values(tags)}'
+    models_with_tags_missing_val_querystr = f' {model_debug_projection_str} | [?contains(tagvalues, `?`)]'
+    
+    try:
+        models_with_tags_missing_val = qmodels(models_with_tags_missing_val_querystr)
+    
+    except jmespath.exceptions.JMESPathError as ex:
+        warnings.warn(f"JMESPath query failed: {models_with_tags_missing_val_querystr=}. {ex}")
+    
+    if models_with_tags_missing_val:
+        list_objs_str = fmt_list_objs(
+            models_with_tags_missing_val, 
+            lambda obj: f"model={obj['model']}, src-file={obj['src-file']}"
+        )
+        warnings.warn(f"There are model objects with a tag value of '?': \n{list_objs_str}")
+    
+    # ------------------------------------------------
+    # 3) check object with extra fields
+    # ------------------------------------------------
+    # TODO

@@ -5,6 +5,7 @@ import json5
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 import time
+import re
 import datetime
 import warnings
 import hashlib
@@ -78,10 +79,17 @@ def _bkp(datadir) -> None:
         (newbkpdir / f.name).write_bytes(f.read_bytes())
 
 
-# todo move this to a config file
+# TODO move this to a config file
 _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
     "000-manual": _parse_manual,
     "001-padim": parse_models_single_paper,
+    "002-patchcore": parse_models_single_paper,
+    "003-spade": parse_models_single_paper,
+    "004-semi-orthogonal": parse_models_single_paper,
+    "005-gaussian-ad": parse_models_single_paper,
+    # "006-": parse_models_single_paper,
+    # "007-": parse_models_single_paper,
+    # "008-": parse_models_single_paper,
 }
     
 
@@ -95,7 +103,13 @@ def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
     datajson, datachecksum, srcdir, manualjson, _ = _get_datadir_subpaths(datadir)
     
     # find source files in srcdir
-    srcjsons = sorted(p for p in srcdir.iterdir() if p.is_file() and p.suffix == ".json")
+    regex_source_file_json = re.compile(r"^\d{3}-.*\.json$")
+    srcjsons = sorted(
+        p 
+        for p in srcdir.iterdir() 
+        if p.is_file() 
+        and regex_source_file_json.match(p.name)
+    )
     
     print("sources found:")
     for p in srcjsons:
