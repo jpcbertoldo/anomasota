@@ -3,7 +3,7 @@
 from copy import deepcopy
 import json5
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Union
 import time
 import re
 import datetime
@@ -16,9 +16,6 @@ import jmespath
 from anomasota.data import common
 from anomasota.data.parse_models_single_paper import parse_models_single_paper
 
-_MODULE_DIR = Path(__file__).parent
-_REPO_ROOT = _MODULE_DIR.parent.parent.parent
-_DEFAULT_DATA_DIR = _REPO_ROOT / "data"
 
 NOW = time.time()
 
@@ -32,6 +29,7 @@ def _get_datadir_subpaths(datadir: Path) -> Tuple[Path, Path, Path, Path, Path]:
         # data.json and data.checksum
         datadir / "data.json",
         datadir / "data.checksum",
+        datadir / "data-no-metadata.checksum",
         # src/
         (srcdir := datadir / "src"),
         srcdir / "000-manual.json",
@@ -43,7 +41,7 @@ def _get_datadir_subpaths(datadir: Path) -> Tuple[Path, Path, Path, Path, Path]:
 def _validate_datadir(datadir: Path) -> None:
     assert datadir.exists(), f"Data directory does not exist, {datadir=}"
     assert datadir.is_dir(), f"Data directory is not a directory, {datadir=}"
-    datajson, datachecksum, srcdir, manualjson, bkpdir = _get_datadir_subpaths(datadir)
+    datajson, _, _, srcdir, manualjson, bkpdir = _get_datadir_subpaths(datadir)
     assert srcdir.exists(), f"Source directory does not exist, {srcdir=}"
     assert srcdir.is_dir(), f"Source directory is not a directory, {srcdir=}"
     assert manualjson.exists(), f"Manual JSON file does not exist, {manualjson=}"
@@ -56,13 +54,20 @@ def _parse_manual(jsonfpath: Path) -> Dict[str, Any]:
     return json5.loads(jsonfpath.read_text())
 
 
-def _get_checksum(fpath: Path) -> str:
-    return hashlib.md5(fpath.read_bytes()).hexdigest()
+def _get_checksum(data: Union[Path, dict]) -> str:
+    
+    if isinstance(data, Path):
+        return hashlib.md5(data.read_bytes()).hexdigest()
+
+    elif isinstance(data, dict):
+        return hashlib.md5(json5.dumps(data).encode()).hexdigest()
+    
+    raise TypeError(f"Expected Path or dict, got {type(data)}")
 
 
 def _bkp(datadir) -> None:
     
-    datajson, datachecksum, _, _, bkpdir = _get_datadir_subpaths(datadir)
+    datajson, data_checksum, data_no_metadata_checksum, _, _, bkpdir = _get_datadir_subpaths(datadir)
     
     if not datajson.exists():
         warnings.warn("data.json does not exist, skipping backup")
@@ -74,7 +79,7 @@ def _bkp(datadir) -> None:
     newbkpdir = bkpdir / f"bkp-{bkp_count:05d}-{fmt_timestamp(NOW)}"
     newbkpdir.mkdir()
     
-    files_to_copy = [datajson, datachecksum]
+    files_to_copy = [datajson, data_checksum, data_no_metadata_checksum]
     for f in files_to_copy:
         (newbkpdir / f.name).write_bytes(f.read_bytes())
 
@@ -94,13 +99,13 @@ _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
     
 
 @click.command()
-@click.option('--datadir', '-o', default=_DEFAULT_DATA_DIR, type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, writable=True, allow_dash=False, path_type=Path))
+@click.option('--datadir', '-o', default=common.DEFAULT_DATADIR_PATH, type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, writable=True, allow_dash=False, path_type=Path))
 @click.option("--dryrun", is_flag=True)
 @click.option("--bkp", is_flag=True)
 def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
     
     _validate_datadir(datadir)
-    datajson, datachecksum, srcdir, manualjson, _ = _get_datadir_subpaths(datadir)
+    datajson_fpath, data_checksum_fpath, data_no_metadata_checksum_fpath, srcdir, manualjson, _ = _get_datadir_subpaths(datadir)
     
     # find source files in srcdir
     regex_source_file_json = re.compile(r"^\d{3}-.*\.json$")
@@ -176,8 +181,11 @@ def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
     
     print(f"merged data count: {count_objects(merged_data)}")
     
+    checksum_no_metadata = _get_checksum(merged_data)
+    
     print("writing data.json")
     merged_data["metadata"] = metadata = {
+        "checksum-no-metadata": checksum_no_metadata,
         "datetime": fmt_timestamp(NOW),
         "source-files": [
             {
@@ -191,14 +199,18 @@ def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
     if dryrun:
         warnings.warn("dryrun, not writing data.json")
     
+    elif data_no_metadata_checksum_fpath.exists() and data_no_metadata_checksum_fpath.read_text() == checksum_no_metadata:
+        warnings.warn("no changes detected, not writing data.json")
+    
     else:
         
         if bkp:
             print("backing up data.json")
             _bkp(datadir)        
                 
-        datajson.write_text(json5.dumps(merged_data, indent=4, sort_keys=False))
-        (datadir / "data.checksum").write_text(_get_checksum(datajson))
+        datajson_fpath.write_text(json5.dumps(merged_data, indent=4, sort_keys=False))
+        data_no_metadata_checksum_fpath.write_text(checksum_no_metadata)
+        data_checksum_fpath.write_text(_get_checksum(datajson_fpath))
     
 
 if __name__ == "__main__":

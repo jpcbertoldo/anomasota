@@ -8,6 +8,8 @@ from functools import wraps, partial
 
 import jmespath
 
+from ._default_datadir import DEFAULT_DATADIR_PATH, DEFAULT_DATADIR_STR
+
 # ==================================================================================================
 # data (root level)
 # ==================================================================================================
