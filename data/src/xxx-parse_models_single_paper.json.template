@@ -2,10 +2,6 @@
 {
     "papers": {
         "PAPERID": {
-            "id": "PAPERID",
-            "name": "",
-            "author": "",
-            "year": ""
         }
     },
     "models-common-tags": {
@@ -14,9 +10,6 @@
     },
     "models": {
         "MODELID": {
-            "id": "MODELID",
-            "name": "",
-            "version": "",
             "tags": { 
                 "backbone": "?",
                 "embedding-size": "?",
@@ -28,33 +21,36 @@
         "task": "?",
     },
     "performances": [
-        // --------------------------------------------------------------------
+        // =================================================================================
+        // =================================================================================
+        // MODEL VERSION
         {
-            "metric": "",                 
             "model": "",         
             "tags": {},
             "extra": {},
-            "datasets": {
-                "mvtec-ad": 0.976,
-                "mvtec-ad-objects": 0.973,
-                "mvtec-ad-textures": 0.929,
-                // categories
-                "mvtec-ad/carpet": 0.989,
-                "mvtec-ad/grid": 0.949,
-                "mvtec-ad/leather": 0.991,
-                "mvtec-ad/tile": 0.912,
-                "mvtec-ad/wood": 0.936,
-                "mvtec-ad/bottle": 0.981,
-                "mvtec-ad/cable": 0.958,
-                "mvtec-ad/capsule": 0.983,
-                "mvtec-ad/hazelnut": 0.977,
-                "mvtec-ad/metalnut": 0.967,
-                "mvtec-ad/pill": 0.947,
-                "mvtec-ad/screw": 0.974,
-                "mvtec-ad/toothbrush": 0.987,
-                "mvtec-ad/transistor": 0.972,
-                "mvtec-ad/zipper": 0.982,            
-            }
+            "metrics-datasets": {
+                // AUROC IMAGE
+                "auroc-image-wise": {
+                    "mvtec-ad": "?",
+                    "mvtec-ad-textures": "?",
+                    "mvtec-ad-objects": "?",
+                    // categories          
+                },
+                // AUROC PIXEL
+                "auroc-pixel-wise": {
+                    "mvtec-ad": "?",
+                    "mvtec-ad-textures": "?",
+                    "mvtec-ad-objects": "?",
+                    // categories          
+                },
+                // AUPRO 0-30
+                "aupro/fpr=0-30": {
+                    "mvtec-ad": "?",
+                    "mvtec-ad-textures": "?",
+                    "mvtec-ad-objects": "?",
+                    // categories          
+                },
+            },
         },
     ]
 }

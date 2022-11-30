@@ -4,8 +4,7 @@ It is assumed that all the models and performances are from the same paper, whic
 
 ATTENTION: the validations and assumptions here are not generic, they are specific to json files supposed to be parsed with this parser.
 
-
-MVTecAD categories order:
+TODO: check redundant cases of performances and models (e.g. models with the same tags)
 
 """
 
@@ -67,9 +66,9 @@ _MODELOBJ_FORBIDDEN_KEYS = (MOK_ID,) + MODEL_ID_KEYS
 _PAPEROBJ_FORBIDDEN_KEYS = (PAK_ID, ) + PAPER_ID_KEYS
 
 # performanceobj
-_PERFOBJ_MANDATORY_KEYS = ("model", "metric", "tags", "extra", )
-_PERFOBJ_FORBIDEN_KEYS = ("source", "source-type")
-_PERFOBJ_ADHOC_KEY_DATASETS = "datasets"  # datasetS in the plural!!!
+_PERFOBJ_MANDATORY_KEYS = (PEK_MODEL, PEK_TAGS, PEK_EXTRA,)
+_PERFOBJ_FORBIDEN_KEYS = (PEK_SOURCE, PEK_SOURCE_TYPE, PEK_METRIC, PEK_DATASET, PEK_VALUE, )
+_PERFOBJ_ADHOC_KEY_METRICS_DATASETS = "metrics-datasets"  # datasetS in the plural!!!
 
         
 def _inject_modelobj_fields(modelobj: Dict[str, Any], modelid: str, source_paperid: str, common_model_tags: Dict[str, str]) -> Dict[str, Any]:
@@ -118,7 +117,12 @@ def _inject_paperobj_fields(paperobj: Dict[str, Any], paperid: str) -> Dict[str,
     return paperobj
     
     
-def _get_perfobjs_from_prototype(protoperfobj: Dict[str, Any], performances_perdataset: Dict[str, float], paperid: str, common_perf_tags: Dict[str, str]) -> List[Dict[str, Any]]:
+def _get_perfobjs_from_prototype(protoperfobj: Dict[str, Any], values_permetric_perdataset: Dict[str, float], paperid: str, common_perf_tags: Dict[str, str]) -> List[Dict[str, Any]]:
+    
+    assert len(values_permetric_perdataset) > 0, f"At least one metric key is required"
+
+    for metric, values_perdataset in values_permetric_perdataset.items():
+        assert len(values_perdataset) > 0, f"At least one dataset key is required, {metric=}"
     
     protoperfobj[PEK_SOURCE_TYPE] = PERFORMANCE_SOURCE_TYPE_LITTERATURE
     protoperfobj[PEK_SOURCE] = paperid
@@ -133,14 +137,16 @@ def _get_perfobjs_from_prototype(protoperfobj: Dict[str, Any], performances_perd
     
     return_perfobjs = []
     
-    for datasetid, value in performances_perdataset.items():
-    
-        perfobj = deepcopy(protoperfobj)
+    for metricid, values_perdataset in values_permetric_perdataset.items():
+        for datasetid, value in values_perdataset.items():
         
-        perfobj[PEK_DATASET] = datasetid
-        perfobj[PEK_VALUE] = value
-        
-        return_perfobjs.append(perfobj)
+            perfobj = deepcopy(protoperfobj)
+            
+            perfobj[PEK_METRIC] = metricid
+            perfobj[PEK_DATASET] = datasetid
+            perfobj[PEK_VALUE] = value
+            
+            return_perfobjs.append(perfobj)
     
     return return_perfobjs
 
@@ -204,17 +210,15 @@ def parse_models_single_paper(jsonfpath: Path) -> Dict[str, Any]:
         
         assert not forbidden_keys_in_obj, f"Forbidden keys found in performanceobj, {forbidden_keys_in_obj=} {jsonfpath.name=}"
         
-        assert _PERFOBJ_ADHOC_KEY_DATASETS in protoperfobj, f"Missing mandatory key {_PERFOBJ_ADHOC_KEY_DATASETS=} {jsonfpath.name=}"
+        assert _PERFOBJ_ADHOC_KEY_METRICS_DATASETS in protoperfobj, f"Missing mandatory key {_PERFOBJ_ADHOC_KEY_METRICS_DATASETS=} {jsonfpath.name=}"
     
         modelid = protoperfobj[PEK_MODEL]
-        perfs_per_dataset: Dict[str, float] = protoperfobj.pop(_PERFOBJ_ADHOC_KEY_DATASETS) 
+        perfs_per_metric_dataset: Dict[str, Dict[str, float]] = protoperfobj.pop(_PERFOBJ_ADHOC_KEY_METRICS_DATASETS) 
         
         assert modelid in models_parsed, f"Model ID is not valid, it must be one of the models declared in the same file; found {modelid=} but available models are {models_parsed.keys()=} in {jsonfpath.name=}"
         
-        assert len(perfs_per_dataset) > 0, f"At least one dataset is required, {perfs_per_dataset=} {jsonfpath.name=}"
-        
         try:
-            perfobjs = _get_perfobjs_from_prototype(deepcopy(protoperfobj), perfs_per_dataset, paperid, performances_comon_tags)
+            perfobjs = _get_perfobjs_from_prototype(deepcopy(protoperfobj), perfs_per_metric_dataset, paperid, performances_comon_tags)
             
             for perfobj in perfobjs:
                 common.validate_performanceobj(perfobj)

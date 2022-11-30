@@ -1,7 +1,7 @@
 // to be parsed with `parse_models_single_paper`
 {
     "papers": {
-        "patchcore.karsetn-roth.2022": {
+        "patchcore.karsttn-roth.2022": {
         }
     },
     "models-common-tags": {
@@ -33,147 +33,116 @@
     },
     "performances-common-tags": {
         "num-seeds": "uknown",
-        "task": "?",
+        "task": "unsupervised-ad",
     },
     "performances": [
         // --------------------------------------------------------------------
         // 25% memory bank, IMAGE-WISE AUROC
         {
-            "metric": "auroc-image-wise",
             "model": "patchcore/wideresnet-50-2:memory-bank-25%",
             "tags": {},
             "extra": {},
-            "datasets": {
-                "mvtec-ad": 99.1,
-                "mvtec-ad/bottle": 1.000, "mvtec-ad/cable": 0.995, "mvtec-ad/capsule": 0.981,
-                "mvtec-ad/carpet": 0.987, "mvtec-ad/grid": 0.982, "mvtec-ad/hazelnut": 1.000,
-                "mvtec-ad/leather": 1.000, "mvtec-ad/metalnut": 1.000, "mvtec-ad/pill": 0.966,
-                "mvtec-ad/screw": 0.981, "mvtec-ad/tile": 0.987, "mvtec-ad/toothbrush": 1.000,
-                "mvtec-ad/transistor": 1.000, "mvtec-ad/wood": 0.992, "mvtec-ad/zipper": 0.994,
-            }
-        },
-        // 25% memory bank, PIXEL-WISE AUROC
-        {
-            "metric": "auroc-pixel-wise",
-            "model": "patchcore/wideresnet-50-2:memory-bank-25%",
-            "tags": {},
-            "extra": {},
-            "datasets": {
-                "mvtec-ad": 98.1,
-                "mvtec-ad/bottle": 0.986, "mvtec-ad/cable": 0.984, "mvtec-ad/capsule": 0.988,
-                "mvtec-ad/carpet": 0.990, "mvtec-ad/grid": 0.987, "mvtec-ad/hazelnut": 0.987,
-                "mvtec-ad/leather": 0.993, "mvtec-ad/metalnut": 0.984, "mvtec-ad/pill": 0.974,
-                "mvtec-ad/screw": 0.994, "mvtec-ad/tile": 0.956, "mvtec-ad/toothbrush": 0.987, 
-                "mvtec-ad/transistor": 0.963, "mvtec-ad/wood": 0.950, "mvtec-ad/zipper": 0.988,
-            }
-        },
-        // 25% memory bank, AUPRO
-        {
-            "metric": "aupro/fpr=0-30",
-            "model": "patchcore/wideresnet-50-2:memory-bank-25%",
-            "tags": {},
-            "extra": {},
-            "datasets": {
-                "mvtec-ad": 93.4,
-                "mvtec-ad/bottle": 0.962, "mvtec-ad/cable": 0.925, "mvtec-ad/capsule": 0.955,
-                "mvtec-ad/carpet": 0.966, "mvtec-ad/grid": 0.960, "mvtec-ad/hazelnut": 0.938,
-                "mvtec-ad/leather": 0.989, "mvtec-ad/metalnut": 0.914, "mvtec-ad/pill": 0.932,
-                "mvtec-ad/screw": 0.979, "mvtec-ad/tile": 0.873, "mvtec-ad/toothbrush": 0.915,
-                "mvtec-ad/transistor": 0.837, "mvtec-ad/wood": 0.894, "mvtec-ad/zipper": 0.971,
-            }
+            "metrics-datasets": {
+                // AUROC IMAGE
+                "auroc-image-wise": {
+                    "mvtec-ad": 99.1,
+                    "mvtec-ad/bottle": 1.000, "mvtec-ad/cable": 0.995, "mvtec-ad/capsule": 0.981,
+                    "mvtec-ad/carpet": 0.987, "mvtec-ad/grid": 0.982, "mvtec-ad/hazelnut": 1.000,
+                    "mvtec-ad/leather": 1.000, "mvtec-ad/metalnut": 1.000, "mvtec-ad/pill": 0.966,
+                    "mvtec-ad/screw": 0.981, "mvtec-ad/tile": 0.987, "mvtec-ad/toothbrush": 1.000,
+                    "mvtec-ad/transistor": 1.000, "mvtec-ad/wood": 0.992, "mvtec-ad/zipper": 0.994,  
+                },
+                // AUROC PIXEL
+                "auroc-pixel-wise": {
+                    "mvtec-ad": 98.1,
+                    "mvtec-ad/bottle": 0.986, "mvtec-ad/cable": 0.984, "mvtec-ad/capsule": 0.988,
+                    "mvtec-ad/carpet": 0.990, "mvtec-ad/grid": 0.987, "mvtec-ad/hazelnut": 0.987,
+                    "mvtec-ad/leather": 0.993, "mvtec-ad/metalnut": 0.984, "mvtec-ad/pill": 0.974,
+                    "mvtec-ad/screw": 0.994, "mvtec-ad/tile": 0.956, "mvtec-ad/toothbrush": 0.987, 
+                    "mvtec-ad/transistor": 0.963, "mvtec-ad/wood": 0.950, "mvtec-ad/zipper": 0.988,    
+                },
+                // AUPRO 0-30
+                "aupro/fpr=0-30": {
+                    "mvtec-ad": 93.4,
+                    "mvtec-ad/bottle": 0.962, "mvtec-ad/cable": 0.925, "mvtec-ad/capsule": 0.955,
+                    "mvtec-ad/carpet": 0.966, "mvtec-ad/grid": 0.960, "mvtec-ad/hazelnut": 0.938,
+                    "mvtec-ad/leather": 0.989, "mvtec-ad/metalnut": 0.914, "mvtec-ad/pill": 0.932,
+                    "mvtec-ad/screw": 0.979, "mvtec-ad/tile": 0.873, "mvtec-ad/toothbrush": 0.915,
+                    "mvtec-ad/transistor": 0.837, "mvtec-ad/wood": 0.894, "mvtec-ad/zipper": 0.971, 
+                },
+            },
         },
         // --------------------------------------------------------------------
         // 10% memory bank, IMAGE-WISE AUROC
         {
-            "metric": "auroc-image-wise",
             "model": "patchcore/wideresnet-50-2:memory-bank-10%",
             "tags": {},
             "extra": {},
-            "datasets": {
-                "mvtec-ad": 99.0,
-                "mvtec-ad/bottle": 1.000, "mvtec-ad/cable": 0.994, "mvtec-ad/capsule": 0.978,
-                "mvtec-ad/carpet": 0.987, "mvtec-ad/grid": 0.979, "mvtec-ad/hazelnut": 1.000,
-                "mvtec-ad/leather": 1.000, "mvtec-ad/metalnut": 1.000, "mvtec-ad/pill": 0.960,
-                "mvtec-ad/screw": 0.970, "mvtec-ad/tile": 0.989, "mvtec-ad/toothbrush": 0.997,
-                "mvtec-ad/transistor": 1.000, "mvtec-ad/wood": 0.990, "mvtec-ad/zipper": 0.995,
-            }
+            "metrics-datasets": {
+                // AUROC IMAGE
+                "auroc-image-wise": {
+                    "mvtec-ad": 99.0,
+                    "mvtec-ad/bottle": 1.000, "mvtec-ad/cable": 0.994, "mvtec-ad/capsule": 0.978,
+                    "mvtec-ad/carpet": 0.987, "mvtec-ad/grid": 0.979, "mvtec-ad/hazelnut": 1.000,
+                    "mvtec-ad/leather": 1.000, "mvtec-ad/metalnut": 1.000, "mvtec-ad/pill": 0.960,
+                    "mvtec-ad/screw": 0.970, "mvtec-ad/tile": 0.989, "mvtec-ad/toothbrush": 0.997,
+                    "mvtec-ad/transistor": 1.000, "mvtec-ad/wood": 0.990, "mvtec-ad/zipper": 0.995,
+                },
+                // AUROC PIXEL
+                "auroc-pixel-wise": {
+                    "mvtec-ad": 98.1,
+                    "mvtec-ad/bottle": 0.986, "mvtec-ad/cable": 0.985, "mvtec-ad/capsule": 0.989,
+                    "mvtec-ad/carpet": 0.991, "mvtec-ad/grid": 0.987, "mvtec-ad/hazelnut": 0.987,
+                    "mvtec-ad/leather": 0.993, "mvtec-ad/metalnut": 0.984, "mvtec-ad/pill": 0.976,
+                    "mvtec-ad/screw": 0.994, "mvtec-ad/tile": 0.959, "mvtec-ad/toothbrush": 0.987,
+                    "mvtec-ad/transistor": 0.964, "mvtec-ad/wood": 0.951, "mvtec-ad/zipper": 0.989,   
+                },
+                // AUPRO 0-30
+                "aupro/fpr=0-30": {
+                    "mvtec-ad": 93.5,
+                    "mvtec-ad/bottle": 0.961, "mvtec-ad/cable": 0.926, "mvtec-ad/capsule": 0.955,
+                    "mvtec-ad/carpet": 0.966, "mvtec-ad/grid": 0.959, "mvtec-ad/hazelnut": 0.939,
+                    "mvtec-ad/leather": 0.989, "mvtec-ad/metalnut": 0.913, "mvtec-ad/pill": 0.941,
+                    "mvtec-ad/screw": 0.979, "mvtec-ad/tile": 0.874, "mvtec-ad/toothbrush": 0.914,
+                    "mvtec-ad/transistor": 0.835, "mvtec-ad/wood": 0.896, "mvtec-ad/zipper": 0.971,       
+                },
+            },
         },
-        // 10% memory bank, PIXEL-WISE AUROC
-        {
-            "metric": "auroc-pixel-wise",
-            "model": "patchcore/wideresnet-50-2:memory-bank-10%",
-            "tags": {},
-            "extra": {},
-            "datasets": {
-                "mvtec-ad": 98.1,
-                "mvtec-ad/bottle": 0.986, "mvtec-ad/cable": 0.985, "mvtec-ad/capsule": 0.989,
-                "mvtec-ad/carpet": 0.991, "mvtec-ad/grid": 0.987, "mvtec-ad/hazelnut": 0.987,
-                "mvtec-ad/leather": 0.993, "mvtec-ad/metalnut": 0.984, "mvtec-ad/pill": 0.976,
-                "mvtec-ad/screw": 0.994, "mvtec-ad/tile": 0.959, "mvtec-ad/toothbrush": 0.987,
-                "mvtec-ad/transistor": 0.964, "mvtec-ad/wood": 0.951, "mvtec-ad/zipper": 0.989,
-            }
-        },
-        // 10% memory bank, AUPRO
-        {
-            "metric": "aupro/fpr=0-30",
-            "model": "patchcore/wideresnet-50-2:memory-bank-10%",
-            "tags": {},
-            "extra": {},
-            "datasets": {
-                "mvtec-ad": 93.5,
-                "mvtec-ad/bottle": 0.961, "mvtec-ad/cable": 0.926, "mvtec-ad/capsule": 0.955,
-                "mvtec-ad/carpet": 0.966, "mvtec-ad/grid": 0.959, "mvtec-ad/hazelnut": 0.939,
-                "mvtec-ad/leather": 0.989, "mvtec-ad/metalnut": 0.913, "mvtec-ad/pill": 0.941,
-                "mvtec-ad/screw": 0.979, "mvtec-ad/tile": 0.874, "mvtec-ad/toothbrush": 0.914,
-                "mvtec-ad/transistor": 0.835, "mvtec-ad/wood": 0.896, "mvtec-ad/zipper": 0.971,
-            }
-        },
-
         // --------------------------------------------------------------------
         // 1% memory bank, IMAGE-WISE AUROC
         {
-            "metric": "auroc-image-wise",
             "model": "patchcore/wideresnet-50-2:memory-bank-1%",
             "tags": {},
             "extra": {},
-            "datasets": {
-                "mvtec-ad": 99.0,
-                "mvtec-ad/bottle": 1.000, "mvtec-ad/cable": 0.993, "mvtec-ad/capsule": 0.980,
-                "mvtec-ad/carpet": 0.980, "mvtec-ad/grid": 0.986, "mvtec-ad/hazelnut": 1.000,
-                "mvtec-ad/leather": 1.000, "mvtec-ad/metalnut": 0.997, "mvtec-ad/pill": 0.970,
-                "mvtec-ad/screw": 0.964, "mvtec-ad/tile": 0.994, "mvtec-ad/toothbrush": 1.000,
-                "mvtec-ad/transistor": 0.999, "mvtec-ad/wood": 0.992, "mvtec-ad/zipper": 0.992,
-            }
-        },
-        // 1% memory bank, PIXEL-WISE AUROC
-        {
-            "metric": "auroc-pixel-wise",
-            "model": "patchcore/wideresnet-50-2:memory-bank-1%",
-            "tags": {},
-            "extra": {},
-            "datasets": {
-                "mvtec-ad": 98.0,
-                "mvtec-ad/bottle": 0.985, "mvtec-ad/cable": 0.982, "mvtec-ad/capsule": 0.988,
-                "mvtec-ad/carpet": 0.989, "mvtec-ad/grid": 0.986, "mvtec-ad/hazelnut": 0.986,
-                "mvtec-ad/leather": 0.993, "mvtec-ad/metalnut": 0.984, "mvtec-ad/pill": 0.971,
-                "mvtec-ad/screw": 0.992, "mvtec-ad/tile": 0.961, "mvtec-ad/toothbrush": 0.985,
-                "mvtec-ad/transistor": 0.949, "mvtec-ad/wood": 0.951, "mvtec-ad/zipper": 0.988,
-            }
-        },
-        // 1% memory bank, AUPRO
-        {
-            "metric": "aupro/fpr=0-30",
-            "model": "patchcore/wideresnet-50-2:memory-bank-1%",
-            "tags": {},
-            "extra": {},
-            "datasets": {
-                "mvtec-ad": 93.1,
-                "mvtec-ad/bottle": 0.959, "mvtec-ad/cable": 0.916, "mvtec-ad/capsule": 0.955,
-                "mvtec-ad/carpet": 0.965, "mvtec-ad/grid": 0.961, "mvtec-ad/hazelnut": 0.938,
-                "mvtec-ad/leather": 0.989, "mvtec-ad/metalnut": 0.912, "mvtec-ad/pill": 0.929,
-                "mvtec-ad/screw": 0.971, "mvtec-ad/tile": 0.883, "mvtec-ad/toothbrush": 0.902,
-                "mvtec-ad/transistor": 0.812, "mvtec-ad/wood": 0.895, "mvtec-ad/zipper": 0.970,
-            }
+            "metrics-datasets": {
+                // AUROC IMAGE
+                "auroc-image-wise": {
+                    "mvtec-ad": 99.0,
+                    "mvtec-ad/bottle": 1.000, "mvtec-ad/cable": 0.993, "mvtec-ad/capsule": 0.980,
+                    "mvtec-ad/carpet": 0.980, "mvtec-ad/grid": 0.986, "mvtec-ad/hazelnut": 1.000,
+                    "mvtec-ad/leather": 1.000, "mvtec-ad/metalnut": 0.997, "mvtec-ad/pill": 0.970,
+                    "mvtec-ad/screw": 0.964, "mvtec-ad/tile": 0.994, "mvtec-ad/toothbrush": 1.000,
+                    "mvtec-ad/transistor": 0.999, "mvtec-ad/wood": 0.992, "mvtec-ad/zipper": 0.992,        
+                },
+                // AUROC PIXEL
+                "auroc-pixel-wise": {
+                    "mvtec-ad": 98.0,
+                    "mvtec-ad/bottle": 0.985, "mvtec-ad/cable": 0.982, "mvtec-ad/capsule": 0.988,
+                    "mvtec-ad/carpet": 0.989, "mvtec-ad/grid": 0.986, "mvtec-ad/hazelnut": 0.986,
+                    "mvtec-ad/leather": 0.993, "mvtec-ad/metalnut": 0.984, "mvtec-ad/pill": 0.971,
+                    "mvtec-ad/screw": 0.992, "mvtec-ad/tile": 0.961, "mvtec-ad/toothbrush": 0.985,
+                    "mvtec-ad/transistor": 0.949, "mvtec-ad/wood": 0.951, "mvtec-ad/zipper": 0.988, 
+                },
+                // AUPRO 0-30
+                "aupro/fpr=0-30": {
+                    "mvtec-ad": 93.1,
+                    "mvtec-ad/bottle": 0.959, "mvtec-ad/cable": 0.916, "mvtec-ad/capsule": 0.955,
+                    "mvtec-ad/carpet": 0.965, "mvtec-ad/grid": 0.961, "mvtec-ad/hazelnut": 0.938,
+                    "mvtec-ad/leather": 0.989, "mvtec-ad/metalnut": 0.912, "mvtec-ad/pill": 0.929,
+                    "mvtec-ad/screw": 0.971, "mvtec-ad/tile": 0.883, "mvtec-ad/toothbrush": 0.902,
+                    "mvtec-ad/transistor": 0.812, "mvtec-ad/wood": 0.895, "mvtec-ad/zipper": 0.970,    
+                },
+            },
         },
     ]
 }
