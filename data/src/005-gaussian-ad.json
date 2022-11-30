@@ -1,0 +1,79 @@
+// to be parsed with `parse_models_single_paper`
+{
+    "papers": {
+        "gaussian-ad.olivier-rippel.2021": {
+        }
+    },
+    "models-common-tags": {
+        "pretraining": "classification-imagenet",
+        "input-resolution": "224",
+    },
+    "models": {
+        "gaussian-ad/efficientnet-b4:npca1%": {
+            "tags": { 
+                "backbone": "efficientnet-b4",
+                "backbone-stages": "stage1-stage2-stage3-stage4-stage5-stage6-stage7-stage8-stage9",
+                "embedding-dimension-reduction": "npca",
+                "embedding-size": "?",
+                "npca-retained-variance": "1%",
+            },
+        },
+        "gaussian-ad/efficientnet-b4:no-dim-reduction": {
+            "tags": { 
+                "backbone": "efficientnet-b4",
+                "backbone-stages": "stage1-stage2-stage3-stage4-stage5-stage6-stage7-stage8-stage9",
+                "embedding-dimension-reduction": "none",
+                "embedding-size": "?",
+                "npca-retained-variance": "n/a",
+            },
+        },
+    },
+    "performances-common-tags": {
+        "num-seeds": "5",
+        "task": "unsupervised-ad",
+    },
+    "performances": [
+        // =================================================================================
+        // =================================================================================
+        // efficientnet-b4   npca1%
+        {
+            "model": "gaussian-ad/efficientnet-b4:npca1%",         
+            "tags": {},
+            "extra": {},
+            "metrics-datasets": {
+                // AUROC IMAGE
+                "auroc-image-wise": {
+                    "mvtec-ad": 95.8,
+                    // categories
+                    "mvtec-ad/carpet": 1.000, "mvtec-ad/grid": 0.897, "mvtec-ad/leather": 1.000,
+                    "mvtec-ad/tile": 0.998, "mvtec-ad/wood": 0.996, "mvtec-ad/bottle": 1.000,
+                    "mvtec-ad/cable": 0.950, "mvtec-ad/capsule": 0.951, "mvtec-ad/hazelnut": 0.991,
+                    "mvtec-ad/metalnut": 0.947, "mvtec-ad/pill": 0.887, "mvtec-ad/screw": 0.852,
+                    "mvtec-ad/toothbrush": 0.969, "mvtec-ad/transistor": 0.955, "mvtec-ad/zipper": 0.979,
+                },
+            },
+        },
+
+        // =================================================================================
+        // =================================================================================
+        // efficientnet-b4   no-dim-reduction
+        {
+            "model": "gaussian-ad/efficientnet-b4:no-dim-reduction",         
+            "tags": {},
+            "extra": {},
+            "metrics-datasets": {
+                // AUROC IMAGE
+                "auroc-image-wise": {
+                    "mvtec-ad": 95.2,
+                    // categories  
+                    "mvtec-ad/carpet": 1.000, "mvtec-ad/grid": 0.817, "mvtec-ad/leather": 0.997,
+                    "mvtec-ad/tile": 0.998, "mvtec-ad/wood": 0.986, "mvtec-ad/bottle": 0.998,
+                    "mvtec-ad/cable": 0.955, "mvtec-ad/capsule": 0.938, "mvtec-ad/hazelnut": 0.996,
+                    "mvtec-ad/metalnut": 0.947, "mvtec-ad/pill": 0.884, "mvtec-ad/screw": 0.854,
+                    "mvtec-ad/toothbrush": 0.964, "mvtec-ad/transistor": 0.963, "mvtec-ad/zipper": 0.978,        
+                },
+            },
+        },
+    ]
+}
+

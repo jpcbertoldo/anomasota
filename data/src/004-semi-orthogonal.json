@@ -1,0 +1,88 @@
+// to be parsed with `parse_models_single_paper`
+{
+    "papers": {
+        "semi-orthogonal.jin-hwa-kim.2021": {
+        }
+    },
+    "models-common-tags": {
+        "pretraining": "classification-imagenet",
+        "input-resolution": "256",
+        "backbone": "wideresnet-50-2",
+        "input-augmentation": "none",
+        "embedding-dimension-reduction": "random-semi-orthogonal-projection",
+    },
+    "models": {
+        "semi-orthogonal/wideresnet-50-2:k100": {
+            "tags": { 
+                "embedding-size": "?",
+                "embedding-reduced-size": "100",
+            },
+        },
+        "semi-orthogonal/wideresnet-50-2:k300": {
+            "tags": { 
+                "embedding-size": "?",
+                "embedding-reduced-size": "300",
+            },
+        },
+    },
+    "performances-common-tags": {
+        "num-seeds": "uknown",
+        "task": "unsupervised-ad",
+        "validation-split-from-training-split": "10%",
+    },
+    "performances": [
+        // =================================================================================
+        // =================================================================================
+        // wideresnet-50-2   k100
+        {
+            "model": "semi-orthogonal/wideresnet-50-2:k100",         
+            "tags": {},
+            "extra": {},
+            "metrics-datasets": {
+                // AUROC PIXEL
+                "auroc-pixel-wise": {
+                    "mvtec-ad": 0.979,
+                },
+                // AUPRO 0-30
+                "aupro/fpr=0-30": {
+                    "mvtec-ad": 0.934,
+                    "mvtec-ad-textures": 0.925,
+                    "mvtec-ad-objects": 0.938,
+                    // categories    
+                    "mvtec-ad/carpet": 0.973, "mvtec-ad/grid": 0.908, "mvtec-ad/leather": 0.985,
+                    "mvtec-ad/tile": 0.850, "mvtec-ad/wood": 0.908, "mvtec-ad/bottle": 0.961,
+                    "mvtec-ad/cable": 0.896, "mvtec-ad/capsule": 0.946, "mvtec-ad/hazelnut": 0.966,
+                    "mvtec-ad/metalnut": 0.930, "mvtec-ad/pill": 0.925, "mvtec-ad/screw": 0.928,
+                    "mvtec-ad/toothbrush": 0.953, "mvtec-ad/transistor": 0.924, "mvtec-ad/zipper": 0.956,      
+                },
+            },
+        },
+        // =================================================================================
+        // =================================================================================
+        // wideresnet-50-2   k300
+        {
+            "model": "semi-orthogonal/wideresnet-50-2:k300",         
+            "tags": {},
+            "extra": {},
+            "metrics-datasets": {
+                // AUROC PIXEL
+                "auroc-pixel-wise": {
+                    "mvtec-ad": 0.982,
+                },
+                // AUPRO 0-30
+                "aupro/fpr=0-30": {
+                    "mvtec-ad": 0.942,
+                    "mvtec-ad-textures": 0.934,
+                    "mvtec-ad-objects": 0.946,
+                    // categories
+                    "mvtec-ad/carpet": 0.974, "mvtec-ad/grid": 0.941, "mvtec-ad/leather": 0.987,
+                    "mvtec-ad/tile": 0.859, "mvtec-ad/wood": 0.906, "mvtec-ad/bottle": 0.962,
+                    "mvtec-ad/cable": 0.915, "mvtec-ad/capsule": 0.952, "mvtec-ad/hazelnut": 0.970,
+                    "mvtec-ad/metalnut": 0.930, "mvtec-ad/pill": 0.936, "mvtec-ad/screw": 0.953,
+                    "mvtec-ad/toothbrush": 0.957, "mvtec-ad/transistor": 0.929, "mvtec-ad/zipper": 0.960,
+                },
+            },
+        },
+    ]
+}
+

@@ -86,7 +86,7 @@ _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
     "002-patchcore": parse_models_single_paper,
     "003-spade": parse_models_single_paper,
     "004-semi-orthogonal": parse_models_single_paper,
-    # "005-gaussian-ad": parse_models_single_paper,
+    "005-gaussian-ad": parse_models_single_paper,
     # "006-": parse_models_single_paper,
     # "007-": parse_models_single_paper,
     # "008-": parse_models_single_paper,

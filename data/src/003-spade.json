@@ -1,0 +1,62 @@
+// to be parsed with `parse_models_single_paper`
+{
+    "papers": {
+        "spade.niv-cohen.2020": {
+        }
+    },
+    "models-common-tags": {
+        "pretraining": "classification-imagenet",
+        "input-resolution": "256-crop-224",
+        "backbone": "wideresnet-50-2",
+        "embedding-size": "?",
+    },
+    "models": {
+        "spade/wideresnet-50-2:k50:kapa1": {
+            "tags": {
+                "k-image-nn": "50",
+                "kapa-subimage-nn": "1",
+            },
+        },
+    },
+    "performances-common-tags": {
+        "num-seeds": "uknown",
+        "task": "unsupervised-ad",
+    },
+    "performances": [
+        // =================================================================================
+        // =================================================================================
+        // wideresnet-50-2   k50   kapa1
+        {
+            "model": "spade/wideresnet-50-2:k50:kapa1",         
+            "tags": {},
+            "extra": {},
+            "metrics-datasets": {
+                // AUROC IMAGE
+                "auroc-image-wise": {  
+                    "mvtec-ad": 85.5, 
+                },
+                // AUROC PIXEL
+                "auroc-pixel-wise": {   
+                    "mvtec-ad": 96.0,
+                    // categories
+                    "mvtec-ad/carpet": 0.975, "mvtec-ad/grid": 0.937, "mvtec-ad/leather": 0.976,
+                    "mvtec-ad/tile": 0.874, "mvtec-ad/wood": 0.885, "mvtec-ad/bottle": 0.984,
+                    "mvtec-ad/cable": 0.972, "mvtec-ad/capsule": 0.990, "mvtec-ad/hazelnut": 0.991,
+                    "mvtec-ad/metalnut": 0.981, "mvtec-ad/pill": 0.965, "mvtec-ad/screw": 0.989,
+                    "mvtec-ad/toothbrush": 0.979, "mvtec-ad/transistor": 0.941, "mvtec-ad/zipper": 0.965,    
+                },
+                // AUPRO 0-30
+                "aupro/fpr=0-30": {   
+                    "mvtec-ad": 91.7,
+                    // categories
+                    "mvtec-ad/carpet": 0.947, "mvtec-ad/grid": 0.867, "mvtec-ad/leather": 0.972,
+                    "mvtec-ad/tile": 0.759, "mvtec-ad/wood": 0.874, "mvtec-ad/bottle": 0.955,
+                    "mvtec-ad/cable": 0.909, "mvtec-ad/capsule": 0.937, "mvtec-ad/hazelnut": 0.954,
+                    "mvtec-ad/metalnut": 0.944, "mvtec-ad/pill": 0.946, "mvtec-ad/screw": 0.960,
+                    "mvtec-ad/toothbrush": 0.935, "mvtec-ad/transistor": 0.874, "mvtec-ad/zipper": 0.926,      
+                },
+            },
+        },
+    ]
+}
+
