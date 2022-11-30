@@ -109,9 +109,20 @@ PERFORMANCE_KEYS = PERFORMANCE_UNICITY_KEYS + (PEK_EXTRA, PEK_TAGS, PEK_VALUE,)
 # -----------------------------------------
 
 # PEST stands for PErformance Source Type
-PEST_LITTERATURE = "litterature"
+PERFORMANCE_SOURCE_TYPE_LITTERATURE = "litterature"
 
-PEST_TYPES = (PEST_LITTERATURE,)
+PERFORMANCE_SOURCE_TYPES = (PERFORMANCE_SOURCE_TYPE_LITTERATURE,)
+
+# ==================================================================================================
+# Exceptions
+# ==================================================================================================
+
+class AnomasotaException(Exception):
+    pass
+
+class ParsingError(AnomasotaException):
+    pass
+
 
 # ==================================================================================================
 # ==================================================================================================
@@ -139,11 +150,32 @@ def _add_src_file_to_assertion_msg(wrapped: callable) -> callable:
 
 
 def build_paperid(name: str, author: str, year: str) -> str:
+    assert "." not in name, f"{name=}"
+    assert "." not in author, f"{author=}"
+    assert "." not in year, f"{year=}"
     return f"{name}.{author}.{year}"
 
 
+def parse_paperid(idstr: str) -> Tuple[str, str, str]:
+    charcount = Counter(idstr)
+    num_dots = charcount['.']
+    assert num_dots == 2, f"{num_dots=} {idstr=}"
+    name, author, year = idstr.split(".")
+    return name, author, year
+
+
 def build_modelid(name: str, version: str) -> str:
+    assert "/" not in name, f"{name=}"
+    assert "/" not in version, f"{version=}"
     return f"{name}/{version}"
+
+
+def parse_modelid(idstr: str) -> Tuple[str, str]:
+    charcount = Counter(idstr)
+    num_bars = charcount['/']
+    assert num_bars == 1, f"{num_bars=} {idstr=}"
+    name, version = idstr.split("/")
+    return name, version
 
 
 def performance_unicity_tuple(perfobj: Dict[str, Any]) -> Tuple[str, str, str, str]:
@@ -154,10 +186,15 @@ def performance_unicity_tuple(perfobj: Dict[str, Any]) -> Tuple[str, str, str, s
 def validate_paperobj_id(paperobj: dict) -> None:
     
     assert PAK_ID in paperobj, f"Paper object does not have an ID, {paperobj.keys()=}"
-    assert set(PAPER_ID_KEYS).issubset(set(paperobj.keys())), f"Paper object should have keys {PAPER_ID_KEYS}, {paperobj.keys()=}"
     
-    id_, name, author, year = paperobj["id"], paperobj["name"], paperobj["author"], paperobj["year"]
+    missing_paperid_keys = set(PAPER_ID_KEYS) - set(paperobj.keys())
+    assert not missing_paperid_keys, f"Paper object should have keys {PAPER_ID_KEYS}, missing {missing_paperid_keys}"
+    
+    id_ = paperobj[PAK_ID]
+    # parsing validates that the id is correct
+    name, author, year = parse_paperid(id_)
     rebuilt_id = build_paperid(name, author, year)
+
     assert id_ == rebuilt_id, f"Paper ID is not valid, {id_=} != {rebuilt_id}"
 
 
@@ -165,10 +202,15 @@ def validate_paperobj_id(paperobj: dict) -> None:
 def validate_modelobj_id(modelobj: dict) -> None:
     
     assert MOK_ID in modelobj, f"Model object does not have an ID, {modelobj.keys()=}"
-    assert set(MODEL_ID_KEYS).issubset(set(modelobj.keys())), f"Model object should have keys {MODEL_ID_KEYS}, {modelobj.keys()=}"
     
-    id_, name, version = modelobj["id"], modelobj["name"], modelobj["version"]
+    missing_modelid_keys = set(MODEL_ID_KEYS) - set(modelobj.keys())
+    assert not missing_modelid_keys, f"Model object should have keys {MODEL_ID_KEYS}, missing {missing_modelid_keys}"
+    
+    id_ = modelobj[MOK_ID]
+    # parsing validates that the id is correct
+    name, version = parse_modelid(id_)
     rebuilt_id = build_modelid(name, version)
+
     assert id_ == rebuilt_id, f"Model ID is not valid, {id_=} != {rebuilt_id}"
     
 
@@ -210,6 +252,8 @@ def validate_modelobj(modelobj: Dict[str, Any]) -> None:
     missing_papers_keys = set(MODEL_PAPERS_KEYS).difference(papers.keys())
     assert not missing_papers_keys, f"Model object's papers is missing keys, {missing_papers_keys=}"
     
+    validate_modelobj_id(modelobj)
+    
 
 @_add_src_file_to_assertion_msg
 def validate_paperobj(paperobj: Dict[str, Any]) -> None:
@@ -227,7 +271,17 @@ def validate_performanceobj(performanceobj: Dict[str, Any]) -> None:
     assert not missing_keys, f"Performance object is missing keys, {missing_keys=}"    
 
     source_type = performanceobj[PEK_SOURCE_TYPE]
-    assert source_type in PEST_TYPES, f"Performance object source type is not valid, {source_type=}, {PEST_TYPES=}"
+    
+    assert source_type in PERFORMANCE_SOURCE_TYPES, f"Performance object source type is not valid, {source_type=}, {PERFORMANCE_SOURCE_TYPES=}"
+    
+    modelid = performanceobj[PEK_MODEL]
+    # parsing validates that the id is correct
+    parse_modelid(modelid)
+    
+    if source_type == PERFORMANCE_SOURCE_TYPE_LITTERATURE:
+        paperid = performanceobj[PEK_SOURCE]
+        # parsing validates that the id is correct
+        parse_paperid(paperid)
     
     
 def validate_data(data) -> None:
@@ -314,7 +368,7 @@ def validate_data(data) -> None:
     paperids_in_models = set(qmodels(f'*.{MOK_PAPERS}.{MO_PK_SOURCE}'))
     paperids_in_datasets = set(qdatasets(f'*.{DSK_PAPERS}.{DS_PK_SOURCE}'))
 
-    paperids_in_performances = set(qperformances(f'[?"{PEK_SOURCE_TYPE}" == \'{PEST_LITTERATURE}\'].{PEK_SOURCE}'))
+    paperids_in_performances = set(qperformances(f'[?"{PEK_SOURCE_TYPE}" == \'{PERFORMANCE_SOURCE_TYPE_LITTERATURE}\'].{PEK_SOURCE}'))
 
     referenced_paperids = paperids_in_performances | paperids_in_models | paperids_in_datasets    
     

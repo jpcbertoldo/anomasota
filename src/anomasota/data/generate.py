@@ -83,10 +83,10 @@ def _bkp(datadir) -> None:
 _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
     "000-manual": _parse_manual,
     "001-padim": parse_models_single_paper,
-    "002-patchcore": parse_models_single_paper,
-    "003-spade": parse_models_single_paper,
-    "004-semi-orthogonal": parse_models_single_paper,
-    "005-gaussian-ad": parse_models_single_paper,
+    # "002-patchcore": parse_models_single_paper,
+    # "003-spade": parse_models_single_paper,
+    # "004-semi-orthogonal": parse_models_single_paper,
+    # "005-gaussian-ad": parse_models_single_paper,
     # "006-": parse_models_single_paper,
     # "007-": parse_models_single_paper,
     # "008-": parse_models_single_paper,
@@ -121,8 +121,13 @@ def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
         return {k: len(v) for k, v in data.items() if isinstance(v, list) or isinstance(v, dict)}
     
     for srcjson in srcjsons:
-
-        parser = _SOURCES_PARSER_FUNCTIONS[srcjson.stem]
+        
+        try:
+            parser = _SOURCES_PARSER_FUNCTIONS[srcjson.stem]
+        
+        except KeyError as ex: 
+            warnings.warn(f"no parser function found for `{srcjson.stem}`, skipping")
+            continue
 
         print(f"parsing `{srcjson.name}` with `{parser.__name__}`")  # IMPORTANT CALL!!!!!
         data = parser(srcjson)
