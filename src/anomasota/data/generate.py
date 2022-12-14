@@ -39,12 +39,9 @@ def _get_datadir_subpaths(datadir: Path) -> Tuple[Path, Path, Path, Path, Path]:
 
 
 def _validate_datadir(datadir: Path) -> None:
-    assert datadir.exists(), f"Data directory does not exist, {datadir=}"
     assert datadir.is_dir(), f"Data directory is not a directory, {datadir=}"
     datajson, _, _, srcdir, manualjson, bkpdir = _get_datadir_subpaths(datadir)
-    assert srcdir.exists(), f"Source directory does not exist, {srcdir=}"
     assert srcdir.is_dir(), f"Source directory is not a directory, {srcdir=}"
-    assert manualjson.exists(), f"Manual JSON file does not exist, {manualjson=}"
     assert manualjson.is_file(), f"Manual JSON file is not a file, {manualjson=}"
     bkpdir.mkdir(exist_ok=True)
     assert bkpdir.is_dir(), f"Backup directory is not a directory, {bkpdir=}"
@@ -99,7 +96,7 @@ _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
     
 
 @click.command()
-@click.option('--datadir', '-o', default=common.DEFAULT_DATADIR_PATH, type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, writable=True, allow_dash=False, path_type=Path))
+@click.option('--datadir', default=common.DEFAULT_DATADIR_PATH, type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, writable=True, allow_dash=False, path_type=Path))
 @click.option("--dryrun", is_flag=True)
 @click.option("--bkp", is_flag=True)
 def main(datadir: Path, dryrun: bool, bkp: bool) -> None:

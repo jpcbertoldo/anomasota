@@ -4,9 +4,12 @@ import time
 import datetime
 import warnings
 from collections import Counter
-from functools import wraps, partial
+from functools import wraps, partial, lru_cache
+from pathlib import Path
+import re
 
 import jmespath
+import json5
 
 from ._default_datadir import DEFAULT_DATADIR_PATH, DEFAULT_DATADIR_STR
 
@@ -128,6 +131,56 @@ class ParsingError(AnomasotaException):
 
 # ==================================================================================================
 # ==================================================================================================
+
+
+def _get_datadir_subpaths(datadir: Path) -> Tuple[Path,]:
+    return (
+        datadir / "data.json",
+        datadir / "data-no-metadata.checksum"
+    )
+    
+
+@lru_cache
+def _load_json5(fpath: Path, checksum: str) -> Dict[str, Any]:
+    """The checksum is used to check that the file has not been modified since the last time it was loaded."""
+    with fpath.open("r") as f:
+        return json5.load(f)
+
+
+def load(datadir: Path) -> Tuple[Dict[str, Any],Dict[str, Any],Dict[str, Any],Dict[str, Any],Dict[str, Any],Dict[str, Any],]:
+    
+    print(f"Loading data from {datadir=}")
+    (data_json_fpath, data_checksum_fpath) = _get_datadir_subpaths(datadir)
+    
+    assert data_json_fpath.is_file(), f"{data_json_fpath=} is not a file"
+    assert data_checksum_fpath.is_file(), f"{data_checksum_fpath=} is not a file"
+    
+    checksum = data_checksum_fpath.read_text()
+    
+    REGEX_HEXDIGEST = r"^[0-9a-f]{32}$"
+    assert re.match(REGEX_HEXDIGEST, checksum), f"{checksum=} is not a valid checksum"
+    
+    data = _load_json5(data_json_fpath, checksum)
+    
+    checksum_from_json = data["metadata"]["checksum-no-metadata"]
+    assert checksum == checksum_from_json, f"{checksum=} != {checksum_from_json=}"
+    
+    datasets = data[DK_DATASETS]
+    metrics = data[DK_METRICS]
+    models = data[DK_MODELS]
+    papers = data[DK_PAPERS]
+    performances = data[DK_PERFORMANCES]
+    
+    model_tagkeys = set().union(*jmespath.search("*.keys(tags)", models))
+    performance_tagkeys = set().union(*jmespath.search("[*].keys(tags)", performances))
+
+    forbidden_model_tagkeys_found = set(MODEL_KEYS) & model_tagkeys
+    assert not forbidden_model_tagkeys_found, f"{forbidden_model_tagkeys_found=}"
+
+    forbidden_performance_tagkeys_found = set(PERFORMANCE_KEYS) & performance_tagkeys
+    assert not forbidden_performance_tagkeys_found, f"{forbidden_performance_tagkeys_found=}"
+
+    return data, datasets, metrics, models, papers, performances, list(model_tagkeys), list(performance_tagkeys)
 
 
 def _get_src_file(obj: Dict[str, Any]) -> str:
