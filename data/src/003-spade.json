@@ -19,7 +19,7 @@
         },
     },
     "performances-common-tags": {
-        "num-seeds": "uknown",
+        "num-seeds": "unknown",
         "task": "unsupervised-ad",
     },
     "performances": [

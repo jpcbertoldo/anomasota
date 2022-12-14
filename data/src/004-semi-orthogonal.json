@@ -26,7 +26,7 @@
         },
     },
     "performances-common-tags": {
-        "num-seeds": "uknown",
+        "num-seeds": "unknown",
         "task": "unsupervised-ad",
         "validation-split-from-training-split": "10%",
     },

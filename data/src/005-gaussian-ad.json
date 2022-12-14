@@ -7,6 +7,7 @@
     "models-common-tags": {
         "pretraining": "classification-imagenet",
         "input-resolution": "224",
+        "image-wise-only": true,
     },
     "models": {
         "gaussian-ad/efficientnet-b4:npca1%": {
