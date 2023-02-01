@@ -1,44 +1,54 @@
 // to be parsed with `parse_models_single_paper`
+// =================================================================================
+// in table v and table viii
+// with per-category imagewise AUROC in mvtec-ad
+// using AUGMENTATION
+// =================================================================================
 {
     "papers": {
         "gaussian-ad.olivier-rippel.2021": {
         }
     },
     "models-common-tags": {
+        "backbone": "efficientnet-b4",
+        "backbone-stages": "stage1-stage2-stage3-stage4-stage5-stage6-stage7-stage8-stage9",
         "pretraining": "classification-imagenet",
         "input-resolution": "224",
+        "input-augmentation": "gaussian-ad-augmentation",
+        "num-epochs": "100",
         "image-wise-only": true,
+        "imagewise-featurevector-is-multiresolution": true,
+        "imagewise-featurevector-multiresolution-aggregation": "score-then-aggregate",
+        "featuremap-spatial-aggregation": "global-avg-pool",
+        "imagewise-featurevector-size": "2944",
+        "imagewise-scores-aggregation": "sum",
     },
     "models": {
-        "gaussian-ad/efficientnet-b4:npca1%": {
+
+        // efficientnet-b4   npca1%
+        "gaussian-ad/efficientnet-b4:npca1%:with-augmentation": {
             "tags": { 
-                "backbone": "efficientnet-b4",
-                "backbone-stages": "stage1-stage2-stage3-stage4-stage5-stage6-stage7-stage8-stage9",
-                "embedding-dimension-reduction": "npca",
-                "embedding-size": "?",
-                "npca-retained-variance": "1%",
+                "imagewise-featurevector-dimension-reduction": "npca",
+                "npca-retained-variance": "1%",                
+                "imagewise-featurevector-reduced-size": "?",
             },
         },
-        "gaussian-ad/efficientnet-b4:no-dim-reduction": {
+        // efficientnet-b4   no-dim-reduction
+        "gaussian-ad/efficientnet-b4:no-dim-reduction:with-augmentation": {
             "tags": { 
-                "backbone": "efficientnet-b4",
-                "backbone-stages": "stage1-stage2-stage3-stage4-stage5-stage6-stage7-stage8-stage9",
-                "embedding-dimension-reduction": "none",
-                "embedding-size": "?",
-                "npca-retained-variance": "n/a",
+                "imagewise-featurevector-dimension-reduction": "none",
             },
         },
     },
     "performances-common-tags": {
-        "num-seeds": "5",
         "task": "unsupervised-ad",
+        "num-folds": "5",
+        "num-seeds": "na",
     },
     "performances": [
-        // =================================================================================
-        // =================================================================================
         // efficientnet-b4   npca1%
         {
-            "model": "gaussian-ad/efficientnet-b4:npca1%",         
+            "model": "gaussian-ad/efficientnet-b4:npca1%:with-augmentation",         
             "tags": {},
             "extra": {},
             "metrics-datasets": {
@@ -54,12 +64,9 @@
                 },
             },
         },
-
-        // =================================================================================
-        // =================================================================================
         // efficientnet-b4   no-dim-reduction
         {
-            "model": "gaussian-ad/efficientnet-b4:no-dim-reduction",         
+            "model": "gaussian-ad/efficientnet-b4:no-dim-reduction:with-augmentation",         
             "tags": {},
             "extra": {},
             "metrics-datasets": {

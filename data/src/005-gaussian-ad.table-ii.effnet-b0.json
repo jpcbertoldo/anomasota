@@ -1,0 +1,177 @@
+// to be parsed with `parse_models_single_paper`
+// =================================================================================
+// in table ii (column efficientnet-b0)
+// with per-stage imagewise AUROC
+// no dim reduction
+// all stages individually and all stages together
+// NO augmentation
+// =================================================================================
+{
+    "papers": {
+        "gaussian-ad.olivier-rippel.2021": {
+        }
+    },
+    "models-common-tags": {
+        "image-wise-only": true,
+        "backbone": "efficientnet-b0",
+        "pretraining": "classification-imagenet",
+        "input-resolution": "224",
+        "input-augmentation": "none",
+        "num-epochs": "1",
+        "featuremap-spatial-aggregation": "global-avg-pool",
+        "imagewise-featurevector-dimension-reduction": "none",
+    },
+    "models": {
+        // ---------------------------------------------------------------------------------
+        // stage1 only
+        "gaussian-ad/efficientnet-b0:stage1:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage1",
+                "imagewise-featurevector-size": "32",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage2 only
+        "gaussian-ad/efficientnet-b0:stage2:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage2",
+                "imagewise-featurevector-size": "16",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage3 only
+        "gaussian-ad/efficientnet-b0:stage3:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage3",
+                "imagewise-featurevector-size": "24",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage4 only
+        "gaussian-ad/efficientnet-b0:stage4:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage4",
+                "imagewise-featurevector-size": "40",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage5 only
+        "gaussian-ad/efficientnet-b0:stage5:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage5",
+                "imagewise-featurevector-size": "80",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage6 only
+        "gaussian-ad/efficientnet-b0:stage6:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage6",
+                "imagewise-featurevector-size": "112",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage7 only
+        "gaussian-ad/efficientnet-b0:stage7:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage7",
+                "imagewise-featurevector-size": "192",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage8 only
+        "gaussian-ad/efficientnet-b0:stage8:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage8",
+                "imagewise-featurevector-size": "320",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // stage9 only
+        "gaussian-ad/efficientnet-b0:stage9:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage9",
+                "imagewise-featurevector-size": "1280",
+            },
+        },
+        // ---------------------------------------------------------------------------------
+        // all stages
+        "gaussian-ad/efficientnet-b0:no-dim-reduction": {
+            "tags": { 
+                "backbone-stages": "stage1-stage2-stage3-stage4-stage5-stage6-stage7-stage8-stage9",
+                "imagewise-featurevector-is-multiresolution": true,
+                "imagewise-featurevector-multiresolution-aggregation": "score-then-aggregate",
+                "imagewise-scores-aggregation": "sum",
+                "imagewise-featurevector-size": "2096",
+            },
+        },
+    },
+    "performances-common-tags": {
+        "task": "unsupervised-ad",
+        "num-folds": "5",
+        "num-seeds": "na",
+    },
+    "performances": [
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage1:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 6.0,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 56.8,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage2:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 5.7,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 62.3,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage3:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 6.0,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 68.4,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage4:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 5.4,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 73.8,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage5:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 5.3,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 79.1,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage6:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 4.1,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 86.1,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage7:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 2.3,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 92.5,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage8:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 2.5,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 92.2,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:stage9:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 3.0,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 91.3,}, }
+        },
+        {
+            "model": "gaussian-ad/efficientnet-b0:no-dim-reduction",
+            "tags": {}, 
+            "extra": {"sem:x-fold;x-dataset": 3.2,},
+            "metrics-datasets": {"auroc-image-wise": {"mvtec-ad": 90.6,}, }
+        },
+    ]
+}
+
