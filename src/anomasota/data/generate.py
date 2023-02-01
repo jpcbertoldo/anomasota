@@ -1,5 +1,6 @@
 """ Generate data.json from src/ """
 
+from collections import OrderedDict
 from copy import deepcopy
 import json5
 from pathlib import Path
@@ -11,7 +12,7 @@ import warnings
 import hashlib
 
 import click
-import jmespath
+from pprint import pprint
 
 from anomasota.data import common
 from anomasota.data.parse_models_single_paper import parse_models_single_paper
@@ -89,11 +90,18 @@ _SOURCES_PARSER_FUNCTIONS: Dict[str, callable] = {
     "003-spade": parse_models_single_paper,
     "004-semi-orthogonal": parse_models_single_paper,
     "005-gaussian-ad": parse_models_single_paper,
+    # "005-gaussian-ad-table-i": parse_models_single_paper,
+    # "005-gaussian-ad-table-v-table-viii": parse_models_single_paper,
     # "006-": parse_models_single_paper,
     # "007-": parse_models_single_paper,
     # "008-": parse_models_single_paper,
 }
     
+    
+def _parse_rootname(srcjson: Path) -> str:
+    """name before the first dot in the stem if any, else the whole stem"""
+    return srcjson.stem.split(".", maxsplit=1)[0]
+
 
 @click.command()
 @click.option('--datadir', default=common.DEFAULT_DATADIR_PATH, type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, writable=True, allow_dash=False, path_type=Path))
@@ -113,33 +121,96 @@ def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
         and regex_source_file_json.match(p.name)
     )
     
-    print("sources found:")
+    print(f"sources found (n: {len(srcjsons)}):")
     for p in srcjsons:
         print(f"\t{p.name}")
+    
+    print("grouping sources by root name (name before the first dot in the stem if any)")
+    srcjson_by_rootname: Dict[str, List[Path]] = OrderedDict()
+    for srcjson in srcjsons:
+        srcjson_by_rootname.setdefault(_parse_rootname(srcjson), []).append(srcjson)
+    
+    print("grouped sources:")
+    for rootname, srcjsons in srcjson_by_rootname.items():
+        print(f"{rootname} (n: {len(srcjsons)}):")
+        for p in srcjsons:
+            print(f"\t{p.name}")
     
     merged_data = {}
     
     def count_objects(data: Dict[str, Any]) -> Dict[str, int]:
         return {k: len(v) for k, v in data.items() if isinstance(v, list) or isinstance(v, dict)}
     
-    for srcjson in srcjsons:
+    for rootname, rootname_srcjsons in srcjson_by_rootname.items():
+
+        print(f"parsing `{rootname=}`")
         
         try:
-            parser = _SOURCES_PARSER_FUNCTIONS[srcjson.stem]
+            parser = _SOURCES_PARSER_FUNCTIONS[rootname]
         
         except KeyError as ex: 
-            warnings.warn(f"no parser function found for `{srcjson.stem}`, skipping")
+            warnings.warn(f"no parser function found for `{rootname=}`, skipping")
             continue
 
-        print(f"parsing `{srcjson.name}` with `{parser.__name__}`")  # IMPORTANT CALL!!!!!
-        data = parser(srcjson)
+        print(f"`{rootname=}` using parser `{parser.__name__}`")  # IMPORTANT CALL!!!!!
+
+        rootname_data_persrc = OrderedDict()
         
+        for srcjson in rootname_srcjsons:
+            
+            print(f"\tparsing `{srcjson.name}`")
+            rootname_data_persrc[srcjson.name] = parser(srcjson)
+
+        # ---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
+
+        if len(rootname_data_persrc) == 1:
+            print(f"`{rootname=}` only one source file, no need to merge")
+            data = rootname_data_persrc.popitem()[1]        
+       
+        # ---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
+        # merge data from different sources with the same rootname
+
+        elif parser == parse_models_single_paper:
+            
+            print(f"`{rootname=}` papers ({len(rootname_data_persrc)}) have to be merged")
+            # this is done to avoid having the same paper multiple times in the data.json
+
+            data = {}
+            
+            for srcidx, (srcjson, srcdata) in enumerate(rootname_data_persrc.items()):
+
+                if srcidx == 0:
+                    # this is done to avoid having different papers while they should be the same
+                    first_srcdata = deepcopy(srcdata)
+                    first_srcjson = srcjson
+                    
+                else:
+                    srcdata = deepcopy(srcdata)
+                    srcpaper = srcdata.pop(common.DK_PAPERS)
+                    assert srcpaper == first_srcdata[common.DK_PAPERS], f"the paper `{srcjson=}` is different from the first one (`{first_srcjson=}`) with the same `{rootname=}`"
+                
+                # TODO: have a function that merges stuff and reuse it here
+                for key, objs in srcdata.items():
+                    if key == common.DK_PERFORMANCES:
+                        data.setdefault(key, []).extend(objs)    
+                    else:
+                        data.setdefault(key, {}).update(objs)
+                
+            # avoid mistakes with the variables names
+            del srcidx, srcjson, srcdata, srcpaper, first_srcdata, first_srcjson
+            
+        del rootname_data_persrc
+        # ---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
+            
         counts = count_objects(data)
         print(f"parsed data count: {counts}")
         
         total_parsed_objs = sum(counts.values())
         if total_parsed_objs == 0:
-            warnings.warn(f"no objects parsed, {srcjson.name}")
+            warnings.warn(f"no objects parsed, {rootname=} {rootname_srcjsons=}")
             continue
         
         # keys: papers, datasets, metrics, models, performances
@@ -149,7 +220,8 @@ def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
             
             for obj in objects_list:
                 obj["metadata"] = {
-                    "src-file": srcjson.name,
+                    "src-rootname": rootname,
+                    "src-rootname-files": [srcjson.name for srcjson in rootname_srcjsons],
                     "src-parser": parser.__name__,
                 }
 
@@ -162,14 +234,14 @@ def main(datadir: Path, dryrun: bool, bkp: bool) -> None:
                 merged_unique_perfobjs = set(map(common.performance_unicity_tuple, merged_objects))
                 unique_objects = set(map(common.performance_unicity_tuple, objects_list))
                 intersec = merged_unique_perfobjs.intersection(unique_objects)
-                assert len(intersec) == 0, f"Duplicate performances, {srcjson.name=}, {sorted(intersec)=}"
+                assert len(intersec) == 0, f"Duplicate performances, {rootname=} {rootname_srcjsons=}, {sorted(intersec)=}"
                 
                 merged_objects.extend(objects)
                 
             else:
                 
                 interct = set(merged_objects.keys()).intersection(set(objects.keys()))
-                assert len(interct) == 0, f"Duplicate object ids found. {srcjson.name=}, {key=}, {sorted(interct)=}"
+                assert len(interct) == 0, f"Duplicate object ids found. {rootname=} {rootname_srcjsons=}, {key=}, {sorted(interct)=}"
                 
                 merged_objects.update(objects)    
             
